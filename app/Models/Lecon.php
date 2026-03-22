@@ -1,3 +1,4 @@
+<?php
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -12,3 +13,4 @@ class Lecon extends Model
         return $this->belongsTo(Cours::class, 'id_cours', 'id_cours');
     }
 }
+?>

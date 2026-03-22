@@ -1,3 +1,4 @@
+<?
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -19,3 +20,4 @@ class Tuteur extends Model
         return $this->hasMany(Cours::class, 'id_tuteur', 'id_utilisateur');
     }
 }
+?>

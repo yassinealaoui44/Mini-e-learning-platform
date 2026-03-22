@@ -12,17 +12,18 @@ class Utilisateur extends Authenticatable
 
     // 1. Tell Laravel the exact table name in the database
     protected $table = 'utilisateurs';
+    protected $primaryKey = 'id_utilisateur';
 
     // 2. Define which fields can be filled during registration
     protected $fillable = [
         'nom',
         'email',
-        'mot_de_passe',
+        'password',
     ];
 
     // 3. Hide the password when the user data is converted to JSON (for security)
     protected $hidden = [
-        'mot_de_passe',
+        'password',
         'remember_token',
     ];
 

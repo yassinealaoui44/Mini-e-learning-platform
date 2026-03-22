@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('email')->unique();
             
             // We use 'mot_de_passe' to match your diagram logic
-            $table->string('mot_de_passe');
+            $table->string('password');
             
             // Standard Laravel timestamps (created_at, updated_at)
             $table->timestamps();
