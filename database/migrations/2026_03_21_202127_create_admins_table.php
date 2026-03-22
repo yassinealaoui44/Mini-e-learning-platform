@@ -6,22 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::create('admins', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
-    }
+/**
+* Run the migrations.
+*/
+public function up(): void
+{
+Schema::create('admins', function (Blueprint $table) {
+// This connects it to the base table
+$table->foreignId('id_utilisateur')
+->primary()
+->constrained('utilisateurs', 'id_utilisateur')
+->onDelete('cascade');
+$table->timestamps();
+});
+}
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('admins');
-    }
+/**
+* Reverse the migrations.
+*/
+public function down(): void
+{
+Schema::dropIfExists('admins');
+}
 };

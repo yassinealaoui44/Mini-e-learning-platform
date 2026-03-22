@@ -9,16 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+   public function up(): void
 {
     Schema::create('etudiants', function (Blueprint $table) {
-        // 1. Create the link to the base 'utilisateurs' table
+        // DO NOT use $table->id() here!
+        
+        // We define the column, make it the primary key, 
+        // and link it to the utilisateurs table all in one go.
         $table->foreignId('id_utilisateur')
-              ->constrained('utilisateurs')
+              ->primary() 
+              ->constrained('utilisateurs', 'id_utilisateur') 
               ->onDelete('cascade');
-
-        // 2. Set this foreign key as the Primary Key for this table
-        $table->primary('id_utilisateur'); 
 
         $table->timestamps();
     });

@@ -9,21 +9,20 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-  public function up(): void
+ public function up(): void
 {
     Schema::create('tuteurs', function (Blueprint $table) {
-        // 1. Link to the main user account
+        // We tell Laravel: "Look in 'utilisateurs' for the column 'id_utilisateur'"
         $table->foreignId('id_utilisateur')
-              ->constrained('utilisateurs')
+              ->constrained('utilisateurs', 'id_utilisateur') 
               ->onDelete('cascade');
 
-        // 2. Set the User ID as the Primary Key
+        // Set the User ID as the Primary Key
         $table->primary('id_utilisateur');
 
         $table->timestamps();
     });
 }
-
     /**
      * Reverse the migrations.
      */

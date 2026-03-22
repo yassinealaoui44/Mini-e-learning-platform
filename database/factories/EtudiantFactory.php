@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Model;
 use  App\Models\Utilisateur;
+use App\Models\Etudiant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
