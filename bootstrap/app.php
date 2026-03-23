@@ -11,8 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
    ->withMiddleware(function (Middleware $middleware) {
-    // Laravel 11 automatically handles Cookies and Sessions.
-    // We only need to "append" the Inertia middleware to the web group.
+    $middleware->alias([
+        'is_etudiant' => \App\Http\Middleware\IsEtudiant::class,
+        'is_tuteur'   => \App\Http\Middleware\IsTuteur::class,
+        'is_admin'    => \App\Http\Middleware\IsAdmin::class,
+    ]);
     $middleware->web(append: [
         \App\Http\Middleware\HandleInertiaRequests::class,
     ]);

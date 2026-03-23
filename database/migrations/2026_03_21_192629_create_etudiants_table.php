@@ -21,7 +21,12 @@ return new class extends Migration
               ->constrained('utilisateurs', 'id_utilisateur') 
               ->onDelete('cascade');
 
+        $table->string('cne')->unique()->nullable(); // Student ID
+        $table->string('filiere')->nullable();       // e.g., 'IIR'
+        $table->string('niveau')->nullable();        // e.g., '3AP'
+        
         $table->timestamps();
+
     });
 }
 

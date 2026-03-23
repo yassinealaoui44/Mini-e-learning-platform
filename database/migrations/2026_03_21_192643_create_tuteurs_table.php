@@ -19,7 +19,10 @@ return new class extends Migration
 
         // Set the User ID as the Primary Key
         $table->primary('id_utilisateur');
-
+        $table->string('matricule')->unique()->nullable();
+        $table->string('specialite')->nullable(); // e.g., 'Cloud Computing'
+        $table->text('biographie')->nullable();
+        
         $table->timestamps();
     });
 }

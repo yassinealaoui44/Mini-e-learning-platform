@@ -11,18 +11,31 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// 2. Authentication Routes
+// 2. Authentication Routes (Public)
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// 3. Register Routes
+// 3. Register Routes (Public)
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
-// 4. Protected Dashboards (Must be logged in)
+// 4. Protected Dashboards (Layered Security)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
-    Route::get('/tuteur/dashboard', [TuteurDashboard::class, 'index'])->name('tuteur.dashboard');
-    Route::get('/etudiant/dashboard', [EtudiantDashboard::class, 'index'])->name('etudiant.dashboard');
+    
+    // 🎓 Student-only Zone
+    Route::middleware(['is_etudiant'])->group(function () {
+        Route::get('/etudiant/dashboard', [EtudiantDashboard::class, 'index'])->name('etudiant.dashboard');
+    });
+
+    // 👨‍🏫 Tutor-only Zone
+    Route::middleware(['is_tuteur'])->group(function () {
+        Route::get('/tuteur/dashboard', [TuteurDashboard::class, 'index'])->name('tuteur.dashboard');
+    });
+
+    // ⚙️ Admin-only Zone
+    Route::middleware(['is_admin'])->group(function () {
+        Route::get('/admin/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
+    });
+
 });

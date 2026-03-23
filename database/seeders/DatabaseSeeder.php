@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Utilisateurr;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,14 +16,14 @@ class DatabaseSeeder extends Seeder
   public function run(): void
 {
     // 1. Create 10 Students (This also creates 10 Utilisateurs automatically)
-    \App\Models\Etudiant::factory(10)->create();
+    \App\Models\Etudiant::factory(20)->create();
 
     // 2. Create 3 Tutors (This also creates 3 Utilisateurs)
-    $tuteurs = \App\Models\Tuteur::factory(3)->create();
+    $tuteurs = \App\Models\Tuteur::factory(5)->create();
 
     // 3. Create 5 Courses and assign them to those Tutors
     foreach ($tuteurs as $tuteur) {
-        $courses = \App\Models\Cours::factory(2)->create([
+        $courses = \App\Models\Cours::factory(4)->create([
             'id_tuteur' => $tuteur->id_utilisateur
         ]);
 

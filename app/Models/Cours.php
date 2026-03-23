@@ -2,9 +2,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Cours extends Model
 {
+    use HasFactory;
     protected $primaryKey = 'id_cours';
     protected $fillable = ['titre', 'description', 'statut', 'id_tuteur'];
 

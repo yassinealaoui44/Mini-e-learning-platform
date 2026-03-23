@@ -2,9 +2,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Etudiant extends Model
 {
+    use HasFactory;
     protected $primaryKey = 'id_utilisateur';
     public $incrementing = false; 
     protected $fillable = ['id_utilisateur'];
@@ -19,6 +21,10 @@ class Etudiant extends Model
     public function inscriptions()
     {
         return $this->hasMany(Inscription::class, 'id_etudiant', 'id_utilisateur');
+    }
+    public function profile()
+    {
+        return $this->belongsTo(Utilisateur::class, 'id_utilisateur');
     }
 }
 ?>

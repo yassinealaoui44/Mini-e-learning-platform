@@ -20,7 +20,7 @@ class UtilisateurFactory extends Factory
         return [
             'nom' => fake()->name(),
             'email' => fake()->unique->safeEmail(),
-            'mot_de_passe' => bcrypt('password'),
+            'password' => bcrypt('password'),
         ];
     }
 }

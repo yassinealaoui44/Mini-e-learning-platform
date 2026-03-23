@@ -23,24 +23,30 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+{
+    $credentials = $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+    if (Auth::attempt($credentials)) {
+        $request->session()->regenerate();
+        $user = Auth::user();
 
-            // 🚀 This tells Laravel to use the logic at the bottom of this file
-            return $this->authenticated($request, Auth::user());
+        // 🎯 The "Who am I?" logic
+        if (\App\Models\Admin::where('id_utilisateur', $user->id_utilisateur)->exists()) {
+            return redirect()->route('admin.dashboard');
+        } 
+        
+        if (\App\Models\Tuteur::where('id_utilisateur', $user->id_utilisateur)->exists()) {
+            return redirect()->route('tuteur.dashboard');
         }
 
-        return back()->withErrors([
-            'email' => 'Les identifiants ne correspondent pas.',
-        ])->onlyInput('email');
+        return redirect()->route('etudiant.dashboard');
     }
 
+    return back()->withErrors(['email' => 'Identifiants incorrects.']);
+}
     // --- REGISTER ---
 
     // ✅ ADDED THIS: This fixes the 500 error you saw earlier

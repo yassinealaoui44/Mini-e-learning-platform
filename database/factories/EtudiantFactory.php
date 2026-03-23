@@ -18,9 +18,12 @@ class EtudiantFactory extends Factory
      * @return array<string, mixed>
      */
     public function definition(): array
-    {
-        return [
-            'id_utilisateur' => Utilisateur::factory(),
-        ];
-    }
+{
+    return [
+        // 🚀 This creates a Utilisateur and grabs its ID automatically
+        'id_utilisateur' => \App\Models\Utilisateur::factory(), 
+        'cne' => $this->faker->unique()->bothify('??#######'),
+        'filiere' => 'IIR',
+    ];
+}
 }
