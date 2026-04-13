@@ -12,21 +12,12 @@ return new class extends Migration
    public function up(): void
 {
     Schema::create('etudiants', function (Blueprint $table) {
-        // DO NOT use $table->id() here!
-        
-        // We define the column, make it the primary key, 
-        // and link it to the utilisateurs table all in one go.
-        $table->foreignId('id_utilisateur')
-              ->primary() 
-              ->constrained('utilisateurs', 'id_utilisateur') 
-              ->onDelete('cascade');
-
-        $table->string('cne')->unique()->nullable(); // Student ID
-        $table->string('filiere')->nullable();       // e.g., 'IIR'
-        $table->string('niveau')->nullable();        // e.g., '3AP'
-        
+        $table->unsignedBigInteger('id_utilisateur')->primary();
+        $table->string('filiere'); // Added Filiere
+        $table->string('niveau');  // Added Niveau
         $table->timestamps();
 
+        $table->foreign('id_utilisateur')->references('id_utilisateur')->on('utilisateurs')->onDelete('cascade');
     });
 }
 

@@ -9,21 +9,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+ public function up(): void
 {
     Schema::create('lecons', function (Blueprint $table) {
-        // Primary Key
-        $table->id('id_lecon');
-        
+        $table->id();
         $table->string('titre');
-        $table->text('contenu')->nullable();
-        $table->string('video_url')->nullable(); // For your video lectures
-        
-        // Foreign Key: Links this lesson to a specific course
-        $table->foreignId('id_cours')
-              ->constrained('cours', 'id_cours')
-              ->onDelete('cascade');
-
+        $table->enum('type', ['pdf', 'video']); // Restricts to these two types
+        $table->string('file_path'); // Stores path to PDF or Video
+        $table->foreignId('cours_id')->constrained('cours')->onDelete('cascade');
         $table->timestamps();
     });
 }

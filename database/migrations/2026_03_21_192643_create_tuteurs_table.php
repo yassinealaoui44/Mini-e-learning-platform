@@ -9,23 +9,20 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
- public function up(): void
-{
-    Schema::create('tuteurs', function (Blueprint $table) {
-        // We tell Laravel: "Look in 'utilisateurs' for the column 'id_utilisateur'"
-        $table->foreignId('id_utilisateur')
-              ->constrained('utilisateurs', 'id_utilisateur') 
-              ->onDelete('cascade');
+    public function up(): void
+    {
+        Schema::create('tuteurs', function (Blueprint $table) {
+            $table->unsignedBigInteger('id_utilisateur')->primary();
+            $table->string('domaine');
+            $table->timestamps();
 
-        // Set the User ID as the Primary Key
-        $table->primary('id_utilisateur');
-        $table->string('matricule')->unique()->nullable();
-        $table->string('specialite')->nullable(); // e.g., 'Cloud Computing'
-        $table->text('biographie')->nullable();
-        
-        $table->timestamps();
-    });
-}
+            $table->foreign('id_utilisateur')
+                  ->references('id_utilisateur')
+                  ->on('utilisateurs')
+                  ->onDelete('cascade');
+        }); // <--- This semicolon and bracket right here is likely what you were missing!
+    }
+
     /**
      * Reverse the migrations.
      */

@@ -9,22 +9,17 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+   public function up(): void
 {
     Schema::create('cours', function (Blueprint $table) {
-        // Primary Key (matching your diagram's naming)
-        $table->id('id_cours'); 
-        
-        $table->string('titre');
-        $table->text('description')->nullable();
-        $table->string('statut')->default('brouillon'); // e.g., published, draft
-        
-        // Foreign Key: Links to the 'id_utilisateur' in the tuteurs table
-        $table->foreignId('id_tuteur')
-              ->constrained('tuteurs', 'id_utilisateur')
-              ->onDelete('cascade');
-
+        $table->id();
+        $table->string('nom');
+        $table->string('filiere');
+        $table->string('thumbnail')->nullable(); // Stores path to image
+        $table->unsignedBigInteger('id_tuteur'); // Owner of the course
         $table->timestamps();
+
+        $table->foreign('id_tuteur')->references('id_utilisateur')->on('tuteurs')->onDelete('cascade');
     });
 }
 

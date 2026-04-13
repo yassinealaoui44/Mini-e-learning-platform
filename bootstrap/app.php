@@ -11,6 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->web(append: [
+            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+        ]);
+
     $middleware->alias([
         'is_etudiant' => \App\Http\Middleware\IsEtudiant::class,
         'is_tuteur'   => \App\Http\Middleware\IsTuteur::class,

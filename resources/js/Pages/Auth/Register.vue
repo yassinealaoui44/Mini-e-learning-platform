@@ -1,94 +1,132 @@
 <script setup>
-import { useForm, Head, Link } from '@inertiajs/vue3';
+import GuestLayout from '@/Layouts/GuestLayout.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 
-// 1. Initialize the form with a default role
+const specialites = [
+    'Computer science',
+    'Cybersecurity',
+    'Data science and AI',
+    'Financial engineering',
+    'Software engineering',
+    'Civil engineering'
+];
+
+// ✅ Added the list of levels
+const niveaux = [
+    '1er année',
+    '2ème année',
+    '3ème année',
+    '4ème année',
+    '5ème année'
+];
+
 const form = useForm({
+    prenom: '',
     nom: '',
     email: '',
-    role: 'etudiant', // Virtual role: 'etudiant' or 'tuteur'
     password: '',
     password_confirmation: '',
+    role: 'etudiant',
+    filiere: '',
+    niveau: '',
+    domaine: '',
 });
 
 const submit = () => {
-    form.post(route('register.submit'), {
+    form.post(route('register'), {
         onFinish: () => form.reset('password', 'password_confirmation'),
     });
 };
 </script>
 
 <template>
-    <Head title="Inscription" />
+    <GuestLayout>
+        <Head title="Register" />
 
-    <div class="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
-        <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+        <form @submit.prevent="submit">
             
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-extrabold text-blue-600">Rejoignez-nous</h1>
-                <p class="text-slate-500 mt-2">Créez votre compte E-Learning EMSI</p>
+            <div class="mb-6 pb-4 border-b border-gray-200">
+                <InputLabel for="role" value="Je m'inscris en tant que :" class="text-lg font-bold" />
+                <div class="flex items-center space-x-6 mt-3">
+                    <label class="flex items-center cursor-pointer p-2 border rounded hover:bg-gray-50 w-full">
+                        <input type="radio" v-model="form.role" value="etudiant" class="text-indigo-600 focus:ring-indigo-500" />
+                        <span class="ml-2 font-medium">Étudiant</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer p-2 border rounded hover:bg-gray-50 w-full">
+                        <input type="radio" v-model="form.role" value="tuteur" class="text-indigo-600 focus:ring-indigo-500" />
+                        <span class="ml-2 font-medium">Tuteur / Professeur</span>
+                    </label>
+                </div>
+                <InputError class="mt-2" :message="form.errors.role" />
             </div>
 
-            <form @submit.prevent="submit" class="space-y-5">
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Nom Complet</label>
-                    <input v-model="form.nom" type="text" required placeholder="Ex: Ahmed Alami"
-                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-                        :class="{'border-red-500': form.errors.nom}">
-                    <div v-if="form.errors.nom" class="text-red-500 text-xs mt-1">{{ form.errors.nom }}</div>
+                    <InputLabel for="prenom" value="Prénom" />
+                    <TextInput id="prenom" type="text" class="mt-1 block w-full" v-model="form.prenom" required autofocus />
+                    <InputError class="mt-2" :message="form.errors.prenom" />
                 </div>
-
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1">Adresse Email</label>
-                    <input v-model="form.email" type="email" required placeholder="email@emsi.ma"
-                        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-                        :class="{'border-red-500': form.errors.email}">
-                    <div v-if="form.errors.email" class="text-red-500 text-xs mt-1">{{ form.errors.email }}</div>
+                    <InputLabel for="nom" value="Nom" />
+                    <TextInput id="nom" type="text" class="mt-1 block w-full" v-model="form.nom" required />
+                    <InputError class="mt-2" :message="form.errors.nom" />
                 </div>
+            </div>
 
+            <div class="mt-4">
+                <InputLabel for="email" value="Email Institutionnel" />
+                <TextInput id="email" type="email" class="mt-1 block w-full" v-model="form.email" required />
+                <InputError class="mt-2" :message="form.errors.email" />
+            </div>
+
+            <div v-if="form.role === 'etudiant'" class="mt-4 grid grid-cols-2 gap-4 p-4 bg-blue-50 rounded border border-blue-100">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Je souhaite être :</label>
-                    <div class="flex gap-4">
-                        <label class="flex-1 border p-3 rounded-xl cursor-pointer transition text-center hover:bg-blue-50"
-                            :class="form.role === 'etudiant' ? 'border-blue-600 bg-blue-50 text-blue-600 ring-2 ring-blue-100' : 'border-slate-200 text-slate-500'">
-                            <input type="radio" v-model="form.role" value="etudiant" class="hidden">
-                            <span class="block text-lg mb-1">🎓</span>
-                            <span class="block text-xs font-bold uppercase tracking-wider">Étudiant</span>
-                        </label>
-
-                        <label class="flex-1 border p-3 rounded-xl cursor-pointer transition text-center hover:bg-blue-50"
-                            :class="form.role === 'tuteur' ? 'border-blue-600 bg-blue-50 text-blue-600 ring-2 ring-blue-100' : 'border-slate-200 text-slate-500'">
-                            <input type="radio" v-model="form.role" value="tuteur" class="hidden">
-                            <span class="block text-lg mb-1">👨‍🏫</span>
-                            <span class="block text-xs font-bold uppercase tracking-wider">Tuteur</span>
-                        </label>
-                    </div>
+                    <InputLabel for="filiere" value="Filière" />
+                    <select id="filiere" v-model="form.filiere" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                        <option value="" disabled>Choisir filière...</option>
+                        <option v-for="spec in specialites" :key="spec" :value="spec">{{ spec }}</option>
+                    </select>
+                    <InputError class="mt-2" :message="form.errors.filiere" />
                 </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">Mot de passe</label>
-                        <input v-model="form.password" type="password" required
-                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1">Confirmation</label>
-                        <input v-model="form.password_confirmation" type="password" required
-                            class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
-                    </div>
+                <div>
+                    <InputLabel for="niveau" value="Niveau" />
+                    <select id="niveau" v-model="form.niveau" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                        <option value="" disabled>Choisir année...</option>
+                        <option v-for="niv in niveaux" :key="niv" :value="niv">{{ niv }}</option>
+                    </select>
+                    <InputError class="mt-2" :message="form.errors.niveau" />
                 </div>
-                <div v-if="form.errors.password" class="text-red-500 text-xs mt-1">{{ form.errors.password }}</div>
+            </div>
 
-                <button type="submit" :disabled="form.processing"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transition active:transform active:scale-95 disabled:opacity-50">
-                    <span v-if="form.processing">Création du compte...</span>
-                    <span v-else>S'inscrire maintenant</span>
-                </button>
-            </form>
+            <div v-if="form.role === 'tuteur'" class="mt-4 p-4 bg-green-50 rounded border border-green-100">
+                <InputLabel for="domaine" value="Domaine d'expertise" />
+                <select id="domaine" v-model="form.domaine" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                    <option value="" disabled>Sélectionnez un domaine...</option>
+                    <option v-for="spec in specialites" :key="spec" :value="spec">{{ spec }}</option>
+                </select>
+                <InputError class="mt-2" :message="form.errors.domaine" />
+            </div>
 
-            <p class="text-center text-sm text-slate-500 mt-8">
-                Déjà un compte ? 
-                <Link :href="route('login')" class="text-blue-600 font-bold hover:underline">Se connecter</Link>
-            </p>
-        </div>
-    </div>
+            <div class="mt-4">
+                <InputLabel for="password" value="Mot de passe" />
+                <TextInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required />
+                <InputError class="mt-2" :message="form.errors.password" />
+            </div>
+
+            <div class="mt-4">
+                <InputLabel for="password_confirmation" value="Confirmer le mot de passe" />
+                <TextInput id="password_confirmation" type="password" class="mt-1 block w-full" v-model="form.password_confirmation" required />
+                <InputError class="mt-2" :message="form.errors.password_confirmation" />
+            </div>
+
+            <div class="mt-6 flex items-center justify-end">
+                <Link :href="route('login')" class="text-sm text-gray-600 underline hover:text-gray-900">Déjà inscrit ?</Link>
+                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">S'inscrire</PrimaryButton>
+            </div>
+        </form>
+    </GuestLayout>
 </template>

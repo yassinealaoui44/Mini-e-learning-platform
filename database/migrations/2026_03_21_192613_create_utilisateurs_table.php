@@ -10,22 +10,16 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('utilisateurs', function (Blueprint $table) {
-            // 'id' will be the Primary Key used by Etudiant and Tuteur
-            $table->id('id_utilisateur'); 
-            
-            $table->string('nom');
-            $table->string('email')->unique();
-            
-            // We use 'mot_de_passe' to match your diagram logic
-            $table->string('password');
-            
-            // Standard Laravel timestamps (created_at, updated_at)
-            $table->timestamps();
-        });
-    }
-
+{
+    Schema::create('utilisateurs', function (Blueprint $table) {
+        $table->id('id_utilisateur');
+        $table->string('prenom'); // Added First Name
+        $table->string('nom');    // Added Last Name
+        $table->string('email')->unique();
+        $table->string('password');
+        $table->timestamps();
+    });
+}
     /**
      * Reverse the migrations.
      */

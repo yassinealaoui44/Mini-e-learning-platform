@@ -1,64 +1,67 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Tuteur;
 
+use App\Http\Controllers\Controller;
+use App\Models\Cours;
+use App\Models\Lecon;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
-class CoursController extends Controller
+class CourseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        // Get courses belonging ONLY to the logged-in tutor
+        $courses = Cours::where('id_tuteur', auth()->id())
+                        ->with('lecons')
+                        ->get();
+
+        return Inertia::render('Tuteur/Dashboard', [
+            'courses' => $courses
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function storeCourse(Request $request)
     {
-        //
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'filiere' => 'required|string',
+            'thumbnail' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $path = $request->file('thumbnail')->store('thumbnails', 'public');
+
+        Cours::create([
+            'nom' => $request->nom,
+            'filiere' => $request->filiere,
+            'thumbnail' => $path,
+            'id_tuteur' => auth()->id(),
+        ]);
+
+        return redirect()->back();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function storeLecon(Request $request, $courseId)
     {
-        //
-    }
+        $request->validate([
+            'titre' => 'required|string|max:255',
+            'type' => 'required|in:pdf,video',
+            'file' => 'required|file|mimes:pdf,mp4,mov,avi|max:20000', // 20MB limit
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $path = $request->file('file')->store('lecons', 'public');
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        Lecon::create([
+            'titre' => $request->titre,
+            'type' => $request->type,
+            'file_path' => $path,
+            'cours_id' => $courseId,
+        ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+        return redirect()->back();
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    
+    // You would add deleteCourse and deleteLecon methods here using Storage::delete()
 }
