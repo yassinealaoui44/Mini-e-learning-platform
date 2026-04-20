@@ -2,15 +2,14 @@
 
 namespace Database\Factories;
 
-use App\Models\Model;
 use App\Models\Cours;
+use App\Models\Lecon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<Model>
- */
 class LeconFactory extends Factory
 {
+    protected $model = Lecon::class;
+
     /**
      * Define the model's default state.
      *
@@ -19,10 +18,10 @@ class LeconFactory extends Factory
     public function definition(): array
     {
         return [
-        'titre' => fake()->sentence(5),
-        'contenu' => fake()->text(500),
-        'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', // Classic test URL
-        'id_cours' => Cours::factory(),
+            'titre' => fake()->sentence(5),
+            'type' => fake()->randomElement(['pdf', 'video']),
+            'file_path' => 'lecons/demo-resource.pdf',
+            'cours_id' => Cours::factory(),
         ];
     }
 }

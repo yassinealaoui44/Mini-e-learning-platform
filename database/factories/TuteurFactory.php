@@ -16,23 +16,15 @@ class TuteurFactory extends Factory
     public function definition(): array
     {
         return [
-            // 🚀 This magic line creates a new Utilisateur and grabs its ID
             'id_utilisateur' => Utilisateur::factory(),
-
-            // Role-specific "fake" data
-            'matricule' => $this->faker->unique()->bothify('PROF-####-??'),
-            'specialite' => $this->faker->randomElement([
-                'Développement Web', 
-                'Intelligence Artificielle', 
-                'Cybersécurité', 
-                'Réseaux & Systèmes', 
-                'Cloud Computing'
+            'domaine' => $this->faker->randomElement([
+                'Computer science',
+                'Cybersecurity',
+                'Data science and AI',
+                'Financial engineering',
+                'Software engineering',
+                'Civil engineering',
             ]),
-            'biographie' => $this->faker->paragraph(),
-            
-            // Standard timestamps
-            'created_at' => now(),
-            'updated_at' => now(),
         ];
     }
 }

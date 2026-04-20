@@ -17,7 +17,8 @@ defineProps({
 const user = usePage().props.auth.user;
 
 const form = useForm({
-    name: user.name,
+    prenom: user.prenom,
+    nom: user.nom,
     email: user.email,
 });
 </script>
@@ -39,19 +40,34 @@ const form = useForm({
             class="mt-6 space-y-6"
         >
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="prenom" value="Prenom" />
 
                 <TextInput
-                    id="name"
+                    id="prenom"
                     type="text"
                     class="mt-1 block w-full"
-                    v-model="form.name"
+                    v-model="form.prenom"
                     required
                     autofocus
-                    autocomplete="name"
+                    autocomplete="given-name"
                 />
 
-                <InputError class="mt-2" :message="form.errors.name" />
+                <InputError class="mt-2" :message="form.errors.prenom" />
+            </div>
+
+            <div>
+                <InputLabel for="nom" value="Nom" />
+
+                <TextInput
+                    id="nom"
+                    type="text"
+                    class="mt-1 block w-full"
+                    v-model="form.nom"
+                    required
+                    autocomplete="family-name"
+                />
+
+                <InputError class="mt-2" :message="form.errors.nom" />
             </div>
 
             <div>

@@ -17,7 +17,7 @@ return new class extends Migration
 
             // Link to the Lesson
             $table->foreignId('id_lecon')
-                  ->constrained('lecons', 'id_lecon')
+                  ->constrained('lecons', 'id')
                   ->onDelete('cascade');
 
             // Link to the Student

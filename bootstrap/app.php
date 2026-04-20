@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         'is_etudiant' => \App\Http\Middleware\IsEtudiant::class,
         'is_tuteur'   => \App\Http\Middleware\IsTuteur::class,
         'is_admin'    => \App\Http\Middleware\IsAdmin::class,
+        'prevent-back-history' => \App\Http\Middleware\PreventBackHistory::class,
     ]);
     $middleware->web(append: [
         \App\Http\Middleware\HandleInertiaRequests::class,

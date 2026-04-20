@@ -2,48 +2,69 @@
 
 namespace Database\Seeders;
 
-use App\Models\Utilisateurr;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Admin;
+use App\Models\Cours;
+use App\Models\Etudiant;
+use App\Models\Inscription;
+use App\Models\Lecon;
+use App\Models\Tuteur;
+use App\Models\Utilisateur;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
-  public function run(): void
-{
-    // 1. Create 10 Students (This also creates 10 Utilisateurs automatically)
-    \App\Models\Etudiant::factory(20)->create();
+    public function run(): void
+    {
+        $adminUser = Utilisateur::updateOrCreate(
+            ['email' => env('ADMIN_EMAIL', 'admin@learnlaravel.test')],
+            [
+                'prenom' => 'Super',
+                'nom' => 'Admin',
+                'password' => Hash::make(env('ADMIN_PASSWORD', 'admin12345')),
+            ],
+        );
 
-    // 2. Create 3 Tutors (This also creates 3 Utilisateurs)
-    $tuteurs = \App\Models\Tuteur::factory(5)->create();
-
-    // 3. Create 5 Courses and assign them to those Tutors
-    foreach ($tuteurs as $tuteur) {
-        $courses = \App\Models\Cours::factory(4)->create([
-            'id_tuteur' => $tuteur->id_utilisateur
+        Admin::updateOrCreate([
+            'id_utilisateur' => $adminUser->id_utilisateur,
         ]);
 
-        // 4. For each Course, create 3 Lessons
-        foreach ($courses as $course) {
-            \App\Models\Lecon::factory(3)->create([
-                'id_cours' => $course->id_cours
+        $etudiants = Etudiant::factory(18)->create();
+        $tuteurs = Tuteur::factory(6)->create();
+
+        $courses = collect();
+
+        foreach ($tuteurs as $tuteur) {
+            $tuteurCourses = Cours::factory(fake()->numberBetween(2, 4))->create([
+                'id_tuteur' => $tuteur->id_utilisateur,
             ]);
+
+            foreach ($tuteurCourses as $course) {
+                Lecon::factory(fake()->numberBetween(2, 5))->create([
+                    'cours_id' => $course->id,
+                ]);
+            }
+
+            $courses = $courses->merge($tuteurCourses);
+        }
+
+        foreach ($etudiants as $etudiant) {
+            $selectedCourses = $courses->random(fake()->numberBetween(1, min(3, $courses->count())));
+
+            foreach ($selectedCourses as $course) {
+                Inscription::firstOrCreate(
+                    [
+                        'id_etudiant' => $etudiant->id_utilisateur,
+                        'id_cours' => $course->id,
+                    ],
+                    [
+                        'date_inscription' => now()->subDays(fake()->numberBetween(0, 20)),
+                    ],
+                );
+            }
         }
     }
-    
-    // 5. Enroll random students into random courses
-    $allStudents = \App\Models\Etudiant::all();
-    $allCourses = \App\Models\Cours::all();
-
-    foreach ($allStudents as $student) {
-        \App\Models\Inscription::factory()->create([
-            'id_etudiant' => $student->id_utilisateur,
-            'id_cours' => $allCourses->random()->id_cours
-        ]);
-    }
-}
 }

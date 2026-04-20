@@ -6,6 +6,7 @@ use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -42,23 +43,37 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        // 1. Find the user by their email
         $user = \App\Models\Utilisateur::where('email', $this->input('email'))->first();
 
-        // 2. Check if user exists AND if the plain text passwords match exactly
-        if (! $user || $user->password !== $this->input('password')) {
-            
-            \Illuminate\Support\Facades\RateLimiter::hit($this->throttleKey());
+        if (! $user) {
+            RateLimiter::hit($this->throttleKey());
 
-            throw \Illuminate\Validation\ValidationException::withMessages([
+            throw ValidationException::withMessages([
                 'email' => __('auth.failed'),
             ]);
         }
 
-        // 3. If they match, log the user in manually
-        \Illuminate\Support\Facades\Auth::login($user, $this->boolean('remember'));
+        $password = (string) $this->input('password');
+        $matchesHashedPassword = Hash::check($password, $user->password);
+        $matchesLegacyPlaintextPassword = hash_equals((string) $user->password, $password);
 
-        \Illuminate\Support\Facades\RateLimiter::clear($this->throttleKey());
+        if (! $matchesHashedPassword && ! $matchesLegacyPlaintextPassword) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => __('auth.failed'),
+            ]);
+        }
+
+        if ($matchesLegacyPlaintextPassword && ! $matchesHashedPassword) {
+            $user->forceFill([
+                'password' => $password,
+            ])->save();
+        }
+
+        Auth::login($user, $this->boolean('remember'));
+
+        RateLimiter::clear($this->throttleKey());
     }
 
     /**

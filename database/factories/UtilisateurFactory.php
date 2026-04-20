@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Utilisateur;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @extends Factory<Utilisateur>
@@ -18,9 +19,10 @@ class UtilisateurFactory extends Factory
     public function definition(): array
     {
         return [
-            'nom' => fake()->name(),
+            'prenom' => fake()->firstName(),
+            'nom' => fake()->lastName(),
             'email' => fake()->unique->safeEmail(),
-            'password' => bcrypt('password'),
+            'password' => Hash::make('password'),
         ];
     }
 }

@@ -4,6 +4,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
     stats: {
@@ -30,6 +31,8 @@ const filiereOptions = [
 ];
 
 const user = usePage().props.auth.user;
+const courseSearch = ref('');
+const filiereFilter = ref('all');
 
 const courseForm = useForm({
     nom: '',
@@ -84,6 +87,37 @@ const submitLesson = (courseId) => {
         },
     });
 };
+
+const filteredCourses = computed(() => {
+    const search = courseSearch.value.trim().toLowerCase();
+
+    return props.courses.filter((course) => {
+        const matchesFiliere = filiereFilter.value === 'all' || course.filiere === filiereFilter.value;
+        const haystack = `${course.nom} ${course.filiere}`.toLowerCase();
+        const matchesSearch = search === '' || haystack.includes(search);
+
+        return matchesFiliere && matchesSearch;
+    });
+});
+
+const filiereChoices = computed(() => [
+    'all',
+    ...new Set(props.courses.map((course) => course.filiere).filter(Boolean)),
+]);
+
+const spotlightCourse = computed(() => {
+    if (filteredCourses.value.length === 0) {
+        return null;
+    }
+
+    return [...filteredCourses.value].sort((left, right) => {
+        if (right.students_count !== left.students_count) {
+            return right.students_count - left.students_count;
+        }
+
+        return right.lessons_count - left.lessons_count;
+    })[0];
+});
 </script>
 
 <template>
@@ -259,26 +293,63 @@ const submitLesson = (courseId) => {
                 </section>
 
                 <section id="mes-cours" class="space-y-4">
-                    <div>
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <h3 class="text-2xl font-semibold text-slate-900">Mes cours</h3>
-                        <p class="text-sm text-slate-500">
-                            Ajoutez des lecons et gardez une vue claire sur chaque cours.
+                        <div class="grid gap-3 sm:grid-cols-[minmax(220px,1fr),auto]">
+                            <input
+                                v-model="courseSearch"
+                                type="text"
+                                placeholder="Rechercher un cours..."
+                                class="rounded-full border border-slate-300 px-4 py-2.5 text-sm text-slate-700 shadow-sm focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                            >
+                            <select
+                                v-model="filiereFilter"
+                                class="rounded-full border border-slate-300 px-4 py-2.5 text-sm text-slate-700 shadow-sm focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                            >
+                                <option value="all">Toutes les filieres</option>
+                                <option v-for="filiere in filiereChoices.filter((item) => item !== 'all')" :key="filiere" :value="filiere">
+                                    {{ filiere }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-teal-200 bg-gradient-to-r from-white to-teal-50 p-5 shadow-sm">
+                        <p class="text-sm font-medium text-teal-700">Pilotage rapide</p>
+                        <div v-if="spotlightCourse" class="mt-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <div>
+                                <p class="text-lg font-semibold text-slate-900">{{ spotlightCourse.nom }}</p>
+                                <p class="text-sm text-slate-500">
+                                    Cours le plus dynamique dans votre vue actuelle avec
+                                    {{ spotlightCourse.students_count }} etudiant(s) et
+                                    {{ spotlightCourse.lessons_count }} lecon(s).
+                                </p>
+                            </div>
+                            <a
+                                href="#mes-cours"
+                                class="inline-flex items-center rounded-full border border-teal-300 px-4 py-2 text-sm font-semibold text-teal-700 transition hover:bg-teal-100"
+                            >
+                                Continuer la gestion
+                            </a>
+                        </div>
+                        <p v-else class="mt-3 text-sm text-slate-500">
+                            Aucun cours ne correspond encore au filtre en cours.
                         </p>
                     </div>
 
                     <div
-                        v-if="courses.length === 0"
+                        v-if="filteredCourses.length === 0"
                         class="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center shadow-sm"
                     >
-                        <p class="text-lg font-semibold text-slate-900">Aucun cours publie pour le moment</p>
+                        <p class="text-lg font-semibold text-slate-900">Aucun cours visible pour le moment</p>
                         <p class="mt-2 text-sm text-slate-500">
-                            Creez votre premier cours ci-dessus pour lancer votre espace de formation.
+                            Creez votre premier cours ci-dessus ou ajustez votre recherche.
                         </p>
                     </div>
 
                     <div v-else class="grid gap-6 xl:grid-cols-2">
                         <article
-                            v-for="course in courses"
+                            v-for="course in filteredCourses"
                             :key="course.id"
                             class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
                         >

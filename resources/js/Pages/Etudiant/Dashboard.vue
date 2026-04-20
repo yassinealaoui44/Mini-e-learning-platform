@@ -1,9 +1,9 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router, usePage } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
-defineProps({
+const props = defineProps({
     stats: {
         type: Object,
         required: true,
@@ -28,6 +28,8 @@ defineProps({
 
 const user = usePage().props.auth.user;
 const enrollingCourseId = ref(null);
+const enrolledSearch = ref('');
+const discoverySearch = ref('');
 
 const enroll = (courseId) => {
     enrollingCourseId.value = courseId;
@@ -40,6 +42,42 @@ const enroll = (courseId) => {
         },
     });
 };
+
+const filteredEnrolledCourses = computed(() => {
+    const search = enrolledSearch.value.trim().toLowerCase();
+
+    return props.enrolledCourses.filter((course) => {
+        if (search === '') {
+            return true;
+        }
+
+        const haystack = `${course.nom} ${course.tuteur_nom || ''} ${course.filiere}`.toLowerCase();
+
+        return haystack.includes(search);
+    });
+});
+
+const filteredRecommendedCourses = computed(() => {
+    const search = discoverySearch.value.trim().toLowerCase();
+
+    return props.recommendedCourses.filter((course) => {
+        if (search === '') {
+            return true;
+        }
+
+        const haystack = `${course.nom} ${course.tuteur_nom || ''} ${course.filiere}`.toLowerCase();
+
+        return haystack.includes(search);
+    });
+});
+
+const learningSpotlight = computed(() => {
+    if (filteredRecommendedCourses.value.length > 0) {
+        return filteredRecommendedCourses.value[0];
+    }
+
+    return filteredEnrolledCourses.value[0] ?? null;
+});
 </script>
 
 <template>
@@ -153,15 +191,22 @@ const enroll = (courseId) => {
                                 Tous les cours auxquels vous etes deja inscrit.
                             </p>
                         </div>
+
+                        <input
+                            v-model="enrolledSearch"
+                            type="text"
+                            placeholder="Filtrer mes cours..."
+                            class="w-full max-w-xs rounded-full border border-slate-300 px-4 py-2.5 text-sm text-slate-700 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                        >
                     </div>
 
                     <div
-                        v-if="enrolledCourses.length === 0"
+                        v-if="filteredEnrolledCourses.length === 0"
                         class="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center shadow-sm"
                     >
-                        <p class="text-lg font-semibold text-slate-900">Aucune inscription pour le moment</p>
+                        <p class="text-lg font-semibold text-slate-900">Aucun cours ne correspond a votre vue</p>
                         <p class="mt-2 text-sm text-slate-500">
-                            Commencez par rejoindre un cours dans la section decouverte.
+                            Commencez par rejoindre un cours dans la section decouverte ou ajustez votre recherche.
                         </p>
                         <a
                             href="#decouverte"
@@ -173,7 +218,7 @@ const enroll = (courseId) => {
 
                     <div v-else class="grid gap-5 lg:grid-cols-2">
                         <article
-                            v-for="course in enrolledCourses"
+                            v-for="course in filteredEnrolledCourses"
                             :key="course.id"
                             class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
                         >
@@ -297,15 +342,50 @@ const enroll = (courseId) => {
                 </section>
 
                 <section id="decouverte" class="space-y-4">
-                    <div>
-                        <h3 class="text-2xl font-semibold text-slate-900">Cours recommandes</h3>
-                        <p class="text-sm text-slate-500">
-                            Une selection prioritaire pour votre filiere et votre niveau d'avancement.
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                        <div>
+                            <h3 class="text-2xl font-semibold text-slate-900">Cours recommandes</h3>
+                            <p class="text-sm text-slate-500">
+                                Une selection prioritaire pour votre filiere et votre niveau d'avancement.
+                            </p>
+                        </div>
+
+                        <input
+                            v-model="discoverySearch"
+                            type="text"
+                            placeholder="Rechercher un cours a rejoindre..."
+                            class="w-full max-w-sm rounded-full border border-slate-300 px-4 py-2.5 text-sm text-slate-700 shadow-sm focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/20"
+                        >
+                    </div>
+
+                    <div class="rounded-3xl border border-rose-200 bg-gradient-to-r from-white to-rose-50 p-5 shadow-sm">
+                        <p class="text-sm font-medium text-rose-700">Focus apprentissage</p>
+                        <div v-if="learningSpotlight" class="mt-3 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                            <div>
+                                <p class="text-lg font-semibold text-slate-900">{{ learningSpotlight.nom }}</p>
+                                <p class="text-sm text-slate-500">
+                                    Une proposition a suivre maintenant avec
+                                    {{ learningSpotlight.lessons_count }} lecon(s) et
+                                    {{ learningSpotlight.students_count }} inscription(s).
+                                </p>
+                            </div>
+                            <button
+                                v-if="filteredRecommendedCourses.some((course) => course.id === learningSpotlight.id)"
+                                type="button"
+                                class="inline-flex items-center justify-center rounded-full bg-rose-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-800 disabled:cursor-not-allowed disabled:opacity-60"
+                                :disabled="enrollingCourseId === learningSpotlight.id"
+                                @click="enroll(learningSpotlight.id)"
+                            >
+                                {{ enrollingCourseId === learningSpotlight.id ? 'Inscription...' : 'Rejoindre le focus' }}
+                            </button>
+                        </div>
+                        <p v-else class="mt-3 text-sm text-slate-500">
+                            Aucun cours ne correspond a votre recherche actuelle.
                         </p>
                     </div>
 
                     <div
-                        v-if="recommendedCourses.length === 0"
+                        v-if="filteredRecommendedCourses.length === 0"
                         class="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center shadow-sm"
                     >
                         <p class="text-lg font-semibold text-slate-900">Aucun cours recommande pour l'instant</p>
@@ -316,7 +396,7 @@ const enroll = (courseId) => {
 
                     <div v-else class="grid gap-5 lg:grid-cols-3">
                         <article
-                            v-for="course in recommendedCourses"
+                            v-for="course in filteredRecommendedCourses"
                             :key="course.id"
                             class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm"
                         >

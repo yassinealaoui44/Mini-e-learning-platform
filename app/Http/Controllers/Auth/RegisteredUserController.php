@@ -10,6 +10,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -33,7 +34,7 @@ class RegisteredUserController extends Controller
             'prenom'   => 'required|string|max:255',
             'nom'      => 'required|string|max:255',
             'email'    => 'required|string|lowercase|email|max:255|unique:utilisateurs,email',
-            'password' => ['required', 'confirmed'],
+            'password' => ['required', 'confirmed', Password::defaults()],
             'role'     => 'required|in:etudiant,tuteur',
             
             // Validation rules for specific roles
@@ -43,12 +44,11 @@ class RegisteredUserController extends Controller
         ]);
 
         // 2. Create the Parent User (Utilisateur)
-        // Note: Password is saved in plain text as per your requirement
         $user = Utilisateur::create([
             'prenom'   => $request->prenom,
             'nom'      => $request->nom,
             'email'    => $request->email,
-            'password' => $request->password, 
+            'password' => $request->password,
         ]);
 
         // 3. Create the Child Record (Etudiant OR Tuteur)

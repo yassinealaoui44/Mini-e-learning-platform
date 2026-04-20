@@ -1,13 +1,41 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
+const page = usePage();
+
+const user = computed(() => page.props.auth.user);
+const dashboardRoute = computed(() => route(`${user.value.role}.dashboard`));
+const sectionLinks = computed(() => {
+    if (user.value.role === 'etudiant') {
+        return [
+            { label: 'Mes cours', href: `${dashboardRoute.value}#mes-cours` },
+            { label: 'Decouverte', href: `${dashboardRoute.value}#decouverte` },
+        ];
+    }
+
+    if (user.value.role === 'tuteur') {
+        return [
+            { label: 'Creer un cours', href: `${dashboardRoute.value}#creation-cours` },
+            { label: 'Mes contenus', href: `${dashboardRoute.value}#mes-cours` },
+        ];
+    }
+
+    if (user.value.role === 'admin') {
+        return [
+            { label: 'Utilisateurs', href: `${dashboardRoute.value}#utilisateurs` },
+            { label: 'Catalogue', href: `${dashboardRoute.value}#cours` },
+        ];
+    }
+
+    return [];
+});
 </script>
 
 <template>
@@ -18,22 +46,23 @@ const showingNavigationDropdown = ref(false);
                     <div class="flex h-16 justify-between">
                         <div class="flex">
                             <div class="flex shrink-0 items-center">
-                                <Link :href="route($page.props.auth.user.role + '.dashboard')">
+                                <Link :href="dashboardRoute">
                                     <ApplicationLogo class="block h-9 w-auto fill-current text-gray-800" />
                                 </Link>
                             </div>
 
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route($page.props.auth.user.role + '.dashboard')" :active="route().current($page.props.auth.user.role + '.dashboard')">
+                                <NavLink :href="dashboardRoute" :active="route().current(`${user.role}.dashboard`)">
                                     Tableau de bord
                                 </NavLink>
 
-                                <NavLink v-if="$page.props.auth.user.role === 'etudiant'" :href="`${route('etudiant.dashboard')}#decouverte`" :active="false">
-                                    Decouvrir des cours
-                                </NavLink>
-
-                                <NavLink v-if="$page.props.auth.user.role === 'tuteur'" :href="`${route('tuteur.dashboard')}#creation-cours`" :active="false">
-                                    Creer un cours
+                                <NavLink
+                                    v-for="link in sectionLinks"
+                                    :key="link.href"
+                                    :href="link.href"
+                                    :active="false"
+                                >
+                                    {{ link.label }}
                                 </NavLink>
                             </div>
                         </div>
@@ -44,10 +73,10 @@ const showingNavigationDropdown = ref(false);
                                     <template #trigger>
                                         <span class="inline-flex rounded-md">
                                             <button type="button" class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none">
-                                                {{ $page.props.auth.user.nom }} 
+                                                {{ user.prenom }} {{ user.nom }}
                                                 
                                                 <span class="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-700 rounded capitalize">
-                                                    {{ $page.props.auth.user.role }}
+                                                    {{ user.role === 'admin' ? 'super user' : user.role }}
                                                 </span>
 
                                                 <svg class="-me-0.5 ms-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">

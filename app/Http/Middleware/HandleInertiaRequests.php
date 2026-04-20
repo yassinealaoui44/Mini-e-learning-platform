@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Utilisateur;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use App\Models\Admin;
@@ -20,7 +21,7 @@ class HandleInertiaRequests extends Middleware
     /**
      * Determine the current asset version.
      */
-    public function version(Request $request): ?string
+    public function version(Request $request): string
     {
         return parent::version($request);
     }
@@ -33,21 +34,22 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
-        $role = $user ? $this->getUserRole($user) : null;
+        $role = null;
         $roleProfile = null;
 
-        if ($user && $role === 'tuteur') {
-            $roleProfile = Tuteur::query()
-                ->select('domaine')
-                ->where('id_utilisateur', $user->id_utilisateur)
-                ->first();
-        }
+        if ($user instanceof Utilisateur) {
+            $user->loadMissing([
+                'adminProfile:id_utilisateur',
+                'tuteurProfile:id_utilisateur,domaine',
+                'etudiantProfile:id_utilisateur,filiere,niveau',
+            ]);
 
-        if ($user && $role === 'etudiant') {
-            $roleProfile = Etudiant::query()
-                ->select('filiere', 'niveau')
-                ->where('id_utilisateur', $user->id_utilisateur)
-                ->first();
+            $role = $this->getUserRole($user);
+            $roleProfile = match ($role) {
+                'tuteur' => $user->tuteurProfile,
+                'etudiant' => $user->etudiantProfile,
+                default => null,
+            };
         }
 
         return [
@@ -75,19 +77,20 @@ class HandleInertiaRequests extends Middleware
      * Helper logic to detect user role based on your Database Schema.
      * This checks the child tables linked by id_utilisateur.
      */
-    protected function getUserRole($user): string
+    protected function getUserRole(Utilisateur $user): ?string
     {
-        // Check if the user exists in the admin table
-        if (Admin::where('id_utilisateur', $user->id_utilisateur)->exists()) {
+        if ($user->adminProfile instanceof Admin) {
             return 'admin';
         }
-        
-        // Check if the user exists in the tuteur table
-        if (Tuteur::where('id_utilisateur', $user->id_utilisateur)->exists()) {
+
+        if ($user->tuteurProfile instanceof Tuteur) {
             return 'tuteur';
         }
 
-        // If not admin or tuteur, they are a student by default
-        return 'etudiant';
+        if ($user->etudiantProfile instanceof Etudiant) {
+            return 'etudiant';
+        }
+
+        return null;
     }
 }

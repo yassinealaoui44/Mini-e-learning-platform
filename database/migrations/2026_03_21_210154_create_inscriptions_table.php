@@ -21,7 +21,7 @@ return new class extends Migration
 
         // Link to the Course
         $table->foreignId('id_cours')
-              ->constrained('cours', 'id_cours')
+              ->constrained('cours', 'id')
               ->onDelete('cascade');
 
         // Prevent a student from enrolling in the same course twice

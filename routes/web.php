@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Tuteur\DashboardController as TuteurDashboard;
 use App\Http\Controllers\Etudiant\DashboardController as EtudiantDashboard;
+use App\Models\Utilisateur;
+use App\Models\Cours;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\Tuteur;
@@ -25,7 +27,7 @@ Route::redirect('/', '/register');
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'prevent-back-history'])->group(function () {
 
     // 1. Profile Management
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -79,6 +81,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['is_admin'])->group(function () {
         Route::get('/admin/dashboard', [AdminDashboard::class, 'index'])
             ->name('admin.dashboard');
+
+        Route::post('/admin/users/{utilisateur}/toggle-super-user', [AdminDashboard::class, 'toggleSuperUser'])
+            ->name('admin.users.toggle-super-user');
+
+        Route::delete('/admin/cours/{cours}', [AdminDashboard::class, 'destroyCourse'])
+            ->name('admin.cours.destroy');
     });
 
 });

@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class InscriptionFactory extends Factory
 {
+    protected $model = Inscription::class;
+
     /**
      * Define the model's default state.
      *
@@ -20,9 +22,9 @@ class InscriptionFactory extends Factory
     public function definition(): array
     {
         return [
-        'id_etudiant' => Etudiant::factory(),
-        'id_cours' => Cours::factory(),
-        'date_inscription' => now(),
+            'id_etudiant' => Etudiant::factory(),
+            'id_cours' => Cours::factory(),
+            'date_inscription' => now(),
         ];
     }
 }

@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Models\Etudiant;
+use App\Models\Utilisateur;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -19,13 +22,25 @@ class RegistrationTest extends TestCase
     public function test_new_users_can_register(): void
     {
         $response = $this->post('/register', [
-            'name' => 'Test User',
+            'prenom' => 'Test',
+            'nom' => 'User',
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
+            'role' => 'etudiant',
+            'filiere' => 'Computer science',
+            'niveau' => '1ere annee',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('etudiant.dashboard'));
+
+        $user = Utilisateur::query()->where('email', 'test@example.com')->first();
+
+        $this->assertNotNull($user);
+        $this->assertTrue(Hash::check('password', $user->password));
+        $this->assertDatabaseHas('etudiants', [
+            'id_utilisateur' => $user->id_utilisateur,
+        ]);
     }
 }
