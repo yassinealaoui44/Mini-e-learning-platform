@@ -23,7 +23,7 @@ class ConfirmablePasswordController extends Controller
     /**
      * Confirm the user's password.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): \Symfony\Component\HttpFoundation\Response
     {
         if (! Auth::guard('web')->validate([
             'email' => $request->user()->email,
@@ -36,6 +36,8 @@ class ConfirmablePasswordController extends Controller
 
         $request->session()->put('auth.password_confirmed_at', time());
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $intended = $request->session()->pull('url.intended', route('dashboard', absolute: false));
+
+        return Inertia::location((string) $intended);
     }
 }

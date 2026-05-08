@@ -1,0 +1,57 @@
+<?php
+
+return [
+    'accepted' => 'The :attribute field must be accepted.',
+    'confirmed' => 'The :attribute confirmation does not match.',
+    'current_password' => 'The current password is incorrect.',
+    'email' => 'The :attribute field must be a valid email address.',
+    'exists' => 'The selected :attribute is invalid.',
+    'file' => 'The :attribute field must be a file.',
+    'image' => 'The :attribute field must be an image.',
+    'in' => 'The selected :attribute is invalid.',
+    'integer' => 'The :attribute field must be an integer.',
+    'max' => [
+        'file' => 'The :attribute field must not be greater than :max kilobytes.',
+        'string' => 'The :attribute field must not be greater than :max characters.',
+    ],
+    'mimes' => 'The :attribute field must be a file of type: :values.',
+    'min' => [
+        'string' => 'The :attribute field must be at least :min characters.',
+    ],
+    'nullable' => 'The :attribute field may be empty.',
+    'required' => 'The :attribute field is required.',
+    'required_if' => 'The :attribute field is required when :other is :value.',
+    'same' => 'The :attribute and :other fields must match.',
+    'string' => 'The :attribute field must be a string.',
+    'unique' => 'The :attribute has already been taken.',
+
+    'attributes' => [
+        'cours_id' => 'course',
+        'current_password' => 'current password',
+        'domain' => 'domain',
+        'domaine' => 'domain',
+        'email' => 'email',
+        'file' => 'file',
+        'filiere' => 'track',
+        'first_name' => 'first name',
+        'id_tuteur' => 'tutor',
+        'last_name' => 'last name',
+        'level' => 'level',
+        'nom' => 'course title',
+        'niveau' => 'level',
+        'password' => 'password',
+        'password_confirmation' => 'password confirmation',
+        'prenom' => 'first name',
+        'role' => 'role',
+        'thumbnail' => 'cover image',
+        'titre' => 'lesson title',
+        'token' => 'reset token',
+        'track' => 'track',
+        'type' => 'lesson type',
+    ],
+
+    'custom' => [
+        'lesson_pdf' => 'A PDF lesson must include a PDF file.',
+        'lesson_video' => 'A video lesson must use MP4, MOV, AVI, or WEBM.',
+    ],
+];

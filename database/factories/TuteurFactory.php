@@ -18,12 +18,12 @@ class TuteurFactory extends Factory
         return [
             'id_utilisateur' => Utilisateur::factory(),
             'domaine' => $this->faker->randomElement([
-                'Computer science',
-                'Cybersecurity',
-                'Data science and AI',
-                'Financial engineering',
-                'Software engineering',
-                'Civil engineering',
+                'Informatique',
+                'Cybersécurité',
+                'Data Science & AI',
+                'Génie Financier',
+                'Génie Logiciel',
+                'Génie Civil',
             ]),
         ];
     }

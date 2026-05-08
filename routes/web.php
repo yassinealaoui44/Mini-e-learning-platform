@@ -1,16 +1,10 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
-use App\Http\Controllers\Tuteur\DashboardController as TuteurDashboard;
-use App\Http\Controllers\Etudiant\DashboardController as EtudiantDashboard;
-use App\Models\Utilisateur;
-use App\Models\Cours;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 use App\Models\Tuteur;
-use App\Models\Etudiant;
 use App\Models\Admin;
+use App\Http\Controllers\MediaController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,8 +12,14 @@ use App\Models\Admin;
 |--------------------------------------------------------------------------
 */
 
-// Send everyone straight to registration to start
-Route::redirect('/', '/register');
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('dashboard')
+        : redirect()->route('login');
+});
+Route::get('/media/{path}', MediaController::class)
+    ->where('path', '.*')
+    ->name('media.public');
 
 /*
 |--------------------------------------------------------------------------
@@ -58,35 +58,33 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
 
     // 🎓 Student Zone
     Route::middleware(['is_etudiant'])->group(function () {
-        Route::get('/etudiant/dashboard', [EtudiantDashboard::class, 'index'])
+        Route::get('/student/dashboard', fn () => view('spa'))
             ->name('etudiant.dashboard');
 
-        Route::post('/etudiant/cours/{cours}/inscription', [EtudiantDashboard::class, 'enroll'])
-            ->name('etudiant.cours.enroll');
+        Route::view('/student/{any?}', 'spa')
+            ->where('any', '.*');
+
+        Route::redirect('/etudiant/dashboard', '/student/dashboard');
     });
 
     // 👨‍🏫 Tutor Zone
     Route::middleware(['is_tuteur'])->group(function () {
-        Route::get('/tuteur/dashboard', [TuteurDashboard::class, 'index'])
+        Route::get('/tutor/dashboard', fn () => view('spa'))
             ->name('tuteur.dashboard');
 
-        Route::post('/tuteur/cours', [TuteurDashboard::class, 'storeCourse'])
-            ->name('tuteur.cours.store');
+        Route::view('/tutor/{any?}', 'spa')
+            ->where('any', '.*');
 
-        Route::post('/tuteur/cours/{cours}/lecons', [TuteurDashboard::class, 'storeLesson'])
-            ->name('tuteur.lecons.store');
+        Route::redirect('/tuteur/dashboard', '/tutor/dashboard');
     });
 
     // ⚙️ Admin Zone
     Route::middleware(['is_admin'])->group(function () {
-        Route::get('/admin/dashboard', [AdminDashboard::class, 'index'])
+        Route::get('/admin/dashboard', fn () => view('spa'))
             ->name('admin.dashboard');
 
-        Route::post('/admin/users/{utilisateur}/toggle-super-user', [AdminDashboard::class, 'toggleSuperUser'])
-            ->name('admin.users.toggle-super-user');
-
-        Route::delete('/admin/cours/{cours}', [AdminDashboard::class, 'destroyCourse'])
-            ->name('admin.cours.destroy');
+        Route::view('/admin/{any?}', 'spa')
+            ->where('any', '.*');
     });
 
 });

@@ -5,24 +5,19 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { LEVEL_OPTIONS, TRACK_OPTIONS } from '@/shared/academics';
 
-const specialites = [
-    'Computer science',
-    'Cybersecurity',
-    'Data science and AI',
-    'Financial engineering',
-    'Software engineering',
-    'Civil engineering'
-];
+const { t } = useI18n();
 
-// ✅ Added the list of levels
-const niveaux = [
-    '1er année',
-    '2ème année',
-    '3ème année',
-    '4ème année',
-    '5ème année'
-];
+const specialites = computed(() =>
+    TRACK_OPTIONS.map((track) => ({ key: track, label: track })),
+);
+
+const niveaux = computed(() =>
+    LEVEL_OPTIONS.map((level) => ({ key: level, label: level })),
+);
 
 const form = useForm({
     prenom: '',
@@ -45,87 +40,92 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+        <Head :title="t('auth.register.head')" />
+
+        <div class="mb-8">
+            <h2 class="font-['Archivo'] text-3xl font-semibold text-slate-950">{{ t('auth.register.title') }}</h2>
+            <p class="mt-2 text-sm text-slate-600">{{ t('auth.register.subtitle') }}</p>
+        </div>
 
         <form @submit.prevent="submit">
             
-            <div class="mb-6 pb-4 border-b border-gray-200">
-                <InputLabel for="role" value="Je m'inscris en tant que :" class="text-lg font-bold" />
-                <div class="flex items-center space-x-6 mt-3">
-                    <label class="flex items-center cursor-pointer p-2 border rounded hover:bg-gray-50 w-full">
+            <div class="mb-6 border-b border-slate-200 pb-4">
+                <InputLabel for="role" :value="t('auth.register.roleLabel')" class="text-lg font-bold" />
+                <div class="mt-3 flex items-center space-x-6">
+                    <label class="flex w-full cursor-pointer items-center rounded-xl border border-slate-200 p-3 transition hover:border-sky-300 hover:bg-slate-50">
                         <input type="radio" v-model="form.role" value="etudiant" class="text-indigo-600 focus:ring-indigo-500" />
-                        <span class="ml-2 font-medium">Étudiant</span>
+                        <span class="ml-2 font-medium">{{ t('auth.register.student') }}</span>
                     </label>
-                    <label class="flex items-center cursor-pointer p-2 border rounded hover:bg-gray-50 w-full">
+                    <label class="flex w-full cursor-pointer items-center rounded-xl border border-slate-200 p-3 transition hover:border-emerald-300 hover:bg-slate-50">
                         <input type="radio" v-model="form.role" value="tuteur" class="text-indigo-600 focus:ring-indigo-500" />
-                        <span class="ml-2 font-medium">Tuteur / Professeur</span>
+                        <span class="ml-2 font-medium">{{ t('auth.register.tutor') }}</span>
                     </label>
                 </div>
                 <InputError class="mt-2" :message="form.errors.role" />
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                    <InputLabel for="prenom" value="Prénom" />
+                    <InputLabel for="prenom" :value="t('auth.fields.firstName')" />
                     <TextInput id="prenom" type="text" class="mt-1 block w-full" v-model="form.prenom" required autofocus />
                     <InputError class="mt-2" :message="form.errors.prenom" />
                 </div>
                 <div>
-                    <InputLabel for="nom" value="Nom" />
+                    <InputLabel for="nom" :value="t('auth.fields.lastName')" />
                     <TextInput id="nom" type="text" class="mt-1 block w-full" v-model="form.nom" required />
                     <InputError class="mt-2" :message="form.errors.nom" />
                 </div>
             </div>
 
             <div class="mt-4">
-                <InputLabel for="email" value="Email Institutionnel" />
+                <InputLabel for="email" :value="t('auth.register.institutionalEmail')" />
                 <TextInput id="email" type="email" class="mt-1 block w-full" v-model="form.email" required />
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
-            <div v-if="form.role === 'etudiant'" class="mt-4 grid grid-cols-2 gap-4 p-4 bg-blue-50 rounded border border-blue-100">
+            <div v-if="form.role === 'etudiant'" class="mt-4 grid grid-cols-1 gap-4 rounded border border-blue-100 bg-blue-50 p-4 md:grid-cols-2">
                 <div>
-                    <InputLabel for="filiere" value="Filière" />
-                    <select id="filiere" v-model="form.filiere" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                        <option value="" disabled>Choisir filière...</option>
-                        <option v-for="spec in specialites" :key="spec" :value="spec">{{ spec }}</option>
+                    <InputLabel for="filiere" :value="t('auth.fields.track')" />
+                    <select id="filiere" v-model="form.filiere" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="" disabled>{{ t('auth.register.specialtyPlaceholder') }}</option>
+                        <option v-for="spec in specialites" :key="spec.key" :value="spec.label">{{ spec.label }}</option>
                     </select>
                     <InputError class="mt-2" :message="form.errors.filiere" />
                 </div>
                 <div>
-                    <InputLabel for="niveau" value="Niveau" />
-                    <select id="niveau" v-model="form.niveau" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                        <option value="" disabled>Choisir année...</option>
-                        <option v-for="niv in niveaux" :key="niv" :value="niv">{{ niv }}</option>
+                    <InputLabel for="niveau" :value="t('auth.fields.level')" />
+                    <select id="niveau" v-model="form.niveau" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <option value="" disabled>{{ t('auth.register.levelPlaceholder') }}</option>
+                        <option v-for="niv in niveaux" :key="niv.key" :value="niv.label">{{ niv.label }}</option>
                     </select>
                     <InputError class="mt-2" :message="form.errors.niveau" />
                 </div>
             </div>
 
-            <div v-if="form.role === 'tuteur'" class="mt-4 p-4 bg-green-50 rounded border border-green-100">
-                <InputLabel for="domaine" value="Domaine d'expertise" />
+            <div v-if="form.role === 'tuteur'" class="mt-4 rounded border border-green-100 bg-green-50 p-4">
+                <InputLabel for="domaine" :value="t('auth.fields.domain')" />
                 <select id="domaine" v-model="form.domaine" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                    <option value="" disabled>Sélectionnez un domaine...</option>
-                    <option v-for="spec in specialites" :key="spec" :value="spec">{{ spec }}</option>
+                    <option value="" disabled>{{ t('auth.register.domainPlaceholder') }}</option>
+                    <option v-for="spec in specialites" :key="spec.key" :value="spec.label">{{ spec.label }}</option>
                 </select>
                 <InputError class="mt-2" :message="form.errors.domaine" />
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Mot de passe" />
+                <InputLabel for="password" :value="t('auth.fields.password')" />
                 <TextInput id="password" type="password" class="mt-1 block w-full" v-model="form.password" required />
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirmer le mot de passe" />
+                <InputLabel for="password_confirmation" :value="t('auth.fields.confirmPassword')" />
                 <TextInput id="password_confirmation" type="password" class="mt-1 block w-full" v-model="form.password_confirmation" required />
                 <InputError class="mt-2" :message="form.errors.password_confirmation" />
             </div>
 
-            <div class="mt-6 flex items-center justify-end">
-                <Link :href="route('login')" class="text-sm text-gray-600 underline hover:text-gray-900">Déjà inscrit ?</Link>
-                <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">S'inscrire</PrimaryButton>
+            <div class="mt-6 flex flex-col-reverse items-start gap-3 sm:flex-row sm:items-center sm:justify-end">
+                <Link :href="route('login')" class="text-sm text-gray-600 underline hover:text-gray-900">{{ t('auth.register.alreadyRegistered') }}</Link>
+                <PrimaryButton class="sm:ms-4" :loading="form.processing">{{ t('auth.register.button') }}</PrimaryButton>
             </div>
         </form>
     </GuestLayout>

@@ -2,15 +2,12 @@
 
 namespace Database\Seeders;
 
-use App\Models\Admin;
 use App\Models\Cours;
 use App\Models\Etudiant;
 use App\Models\Inscription;
 use App\Models\Lecon;
 use App\Models\Tuteur;
-use App\Models\Utilisateur;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,18 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $adminUser = Utilisateur::updateOrCreate(
-            ['email' => env('ADMIN_EMAIL', 'admin@learnlaravel.test')],
-            [
-                'prenom' => 'Super',
-                'nom' => 'Admin',
-                'password' => Hash::make(env('ADMIN_PASSWORD', 'admin12345')),
-            ],
-        );
-
-        Admin::updateOrCreate([
-            'id_utilisateur' => $adminUser->id_utilisateur,
-        ]);
+        $this->call(AdminUserSeeder::class);
 
         $etudiants = Etudiant::factory(18)->create();
         $tuteurs = Tuteur::factory(6)->create();

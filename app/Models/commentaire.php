@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Commentaire extends Model
 {
@@ -21,7 +22,7 @@ class Commentaire extends Model
     /**
      * Relationship: Get the student who wrote the comment.
      */
-    public function etudiant()
+    public function etudiant(): BelongsTo
     {
         return $this->belongsTo(Etudiant::class, 'id_etudiant', 'id_utilisateur');
     }
@@ -29,8 +30,13 @@ class Commentaire extends Model
     /**
      * Relationship: Get the lesson this comment belongs to.
      */
-    public function lesson()
+    public function lecon(): BelongsTo
     {
-        return $this->belongsTo(Lecon::class, 'id_lecon', 'id_lecon');
+        return $this->belongsTo(Lecon::class, 'id_lecon', 'id');
+    }
+
+    public function lesson(): BelongsTo
+    {
+        return $this->lecon();
     }
 }

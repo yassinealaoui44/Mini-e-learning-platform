@@ -19,19 +19,19 @@ class EtudiantFactory extends Factory
         return [
             'id_utilisateur' => \App\Models\Utilisateur::factory(),
             'filiere' => $this->faker->randomElement([
-                'Computer science',
-                'Cybersecurity',
-                'Data science and AI',
-                'Financial engineering',
-                'Software engineering',
-                'Civil engineering',
+                'Informatique',
+                'Cybersécurité',
+                'Data Science & AI',
+                'Génie Financier',
+                'Génie Logiciel',
+                'Génie Civil',
             ]),
             'niveau' => $this->faker->randomElement([
-                '1ere annee',
-                '2eme annee',
-                '3eme annee',
-                '4eme annee',
-                '5eme annee',
+                '1re année',
+                '2e année',
+                '3e année',
+                '4e année',
+                '5e année',
             ]),
         ];
     }

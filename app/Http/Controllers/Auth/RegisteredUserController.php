@@ -7,9 +7,10 @@ use App\Models\Utilisateur;
 use App\Models\Etudiant;
 use App\Models\Tuteur;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -27,43 +28,43 @@ class RegisteredUserController extends Controller
     /**
      * Handle an incoming registration request.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): \Symfony\Component\HttpFoundation\Response
     {
-        // 1. Validation Logic
-        $request->validate([
-            'prenom'   => 'required|string|max:255',
-            'nom'      => 'required|string|max:255',
-            'email'    => 'required|string|lowercase|email|max:255|unique:utilisateurs,email',
+        $validated = $request->validate([
+            'prenom' => 'required|string|max:255',
+            'nom' => 'required|string|max:255',
+            'email' => 'required|string|lowercase|email|max:255|unique:utilisateurs,email',
             'password' => ['required', 'confirmed', Password::defaults()],
-            'role'     => 'required|in:etudiant,tuteur',
-            
-            // Validation rules for specific roles
-            'filiere'  => 'required_if:role,etudiant|string|max:255|nullable',
-            'niveau'   => 'required_if:role,etudiant|string|max:255|nullable',
-            'domaine'  => 'required_if:role,tuteur|string|max:255|nullable',
+            'role' => 'required|in:etudiant,tuteur',
+            'filiere' => ['required_if:role,etudiant', 'nullable', 'string', Rule::in(config('academy.tracks', []))],
+            'niveau' => ['required_if:role,etudiant', 'nullable', 'string', Rule::in(config('academy.levels', []))],
+            'domaine' => ['required_if:role,tuteur', 'nullable', 'string', 'max:255'],
         ]);
 
-        // 2. Create the Parent User (Utilisateur)
-        $user = Utilisateur::create([
-            'prenom'   => $request->prenom,
-            'nom'      => $request->nom,
-            'email'    => $request->email,
-            'password' => $request->password,
-        ]);
+        // 2-3. Create parent and role profile atomically
+        $user = DB::transaction(function () use ($validated): Utilisateur {
+            $created = Utilisateur::create([
+                'prenom' => $validated['prenom'],
+                'nom' => $validated['nom'],
+                'email' => $validated['email'],
+                'password' => $validated['password'],
+            ]);
 
-        // 3. Create the Child Record (Etudiant OR Tuteur)
-        if ($request->role === 'etudiant') {
-            Etudiant::create([
-                'id_utilisateur' => $user->id_utilisateur,
-                'filiere'        => $request->filiere,
-                'niveau'         => $request->niveau,
-            ]);
-        } else {
-            Tuteur::create([
-                'id_utilisateur' => $user->id_utilisateur,
-                'domaine'        => $request->domaine,
-            ]);
-        }
+            if ($validated['role'] === 'etudiant') {
+                Etudiant::create([
+                    'id_utilisateur' => $created->id_utilisateur,
+                    'filiere' => $validated['filiere'],
+                    'niveau' => $validated['niveau'],
+                ]);
+            } else {
+                Tuteur::create([
+                    'id_utilisateur' => $created->id_utilisateur,
+                    'domaine' => $validated['domaine'],
+                ]);
+            }
+
+            return $created;
+        });
 
         // 4. Fire registration event and log the user in
         event(new Registered($user));
@@ -71,6 +72,10 @@ class RegisteredUserController extends Controller
 
         // 5. Dynamic redirect based on the role
         // Ensure routes are named 'etudiant.dashboard' and 'tuteur.dashboard' in web.php
-        return redirect()->route($request->role . '.dashboard');
+        $target = $validated['role'] === 'tuteur'
+            ? route('tuteur.dashboard', absolute: false)
+            : route('etudiant.dashboard', absolute: false);
+
+        return Inertia::location($target);
     }
 }

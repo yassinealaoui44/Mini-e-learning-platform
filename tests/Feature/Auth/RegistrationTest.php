@@ -28,8 +28,8 @@ class RegistrationTest extends TestCase
             'password' => 'password',
             'password_confirmation' => 'password',
             'role' => 'etudiant',
-            'filiere' => 'Computer science',
-            'niveau' => '1ere annee',
+            'filiere' => 'Informatique',
+            'niveau' => '1re année',
         ]);
 
         $this->assertAuthenticated();

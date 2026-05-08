@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Cours extends Model
 {
@@ -14,12 +15,25 @@ class Cours extends Model
 
     protected $table = 'cours';
 
+    protected $appends = [
+        'cover_image_url',
+    ];
+
     protected $fillable = [
         'nom',
         'filiere',
         'thumbnail',
         'id_tuteur',
     ];
+
+    public function getCoverImageUrlAttribute(): ?string
+    {
+        if (! $this->thumbnail) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->thumbnail);
+    }
 
     public function tuteur(): BelongsTo
     {

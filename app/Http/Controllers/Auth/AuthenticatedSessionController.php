@@ -27,13 +27,15 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): \Symfony\Component\HttpFoundation\Response
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $intended = $request->session()->pull('url.intended', route('dashboard', absolute: false));
+
+        return Inertia::location((string) $intended);
     }
 
     /**
@@ -49,6 +51,6 @@ class AuthenticatedSessionController extends Controller
 
         return redirect()
             ->route('login')
-            ->with('status', 'Vous avez ete deconnecte avec succes.');
+            ->with('status', __('portal.logged_out'));
     }
 }

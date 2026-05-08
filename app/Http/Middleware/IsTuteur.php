@@ -19,7 +19,13 @@ class IsTuteur
             return $next($request);
         }
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => __('portal.tutor_only'),
+            ], 403);
+        }
+
         // If not a tutor, send them to the student dashboard with an error
-        return redirect()->route('etudiant.dashboard')->with('error', 'Accès réservé aux tuteurs.');
+        return redirect()->route('etudiant.dashboard')->with('error', __('portal.tutor_only_redirect'));
     }
 }

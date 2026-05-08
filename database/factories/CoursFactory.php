@@ -20,12 +20,12 @@ class CoursFactory extends Factory
         return [
             'nom' => fake()->sentence(3),
             'filiere' => fake()->randomElement([
-                'Computer science',
-                'Cybersecurity',
-                'Data science and AI',
-                'Financial engineering',
-                'Software engineering',
-                'Civil engineering',
+                'Informatique',
+                'Cybersécurité',
+                'Data Science & AI',
+                'Génie Financier',
+                'Génie Logiciel',
+                'Génie Civil',
             ]),
             'thumbnail' => null,
             'id_tuteur' => Tuteur::factory(),

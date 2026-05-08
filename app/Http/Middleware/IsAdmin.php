@@ -17,8 +17,15 @@ class IsAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check() && \App\Models\Admin::where('id_utilisateur', Auth::id())->exists()) {
-        return $next($request);
-    }
-    return redirect('/')->with('error', 'Accès réservé aux administrateurs.');
+            return $next($request);
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => __('portal.admin_only'),
+            ], 403);
+        }
+
+        return redirect()->route('dashboard')->with('error', __('portal.admin_only_redirect'));
     }
 }

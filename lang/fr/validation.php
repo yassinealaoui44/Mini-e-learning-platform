@@ -1,0 +1,57 @@
+<?php
+
+return [
+    'accepted' => 'Le champ :attribute doit être accepté.',
+    'confirmed' => 'La confirmation du champ :attribute ne correspond pas.',
+    'current_password' => 'Le mot de passe actuel est incorrect.',
+    'email' => 'Le champ :attribute doit être une adresse e-mail valide.',
+    'exists' => 'La valeur sélectionnée pour :attribute est invalide.',
+    'file' => 'Le champ :attribute doit être un fichier.',
+    'image' => 'Le champ :attribute doit être une image.',
+    'in' => 'La valeur sélectionnée pour :attribute est invalide.',
+    'integer' => 'Le champ :attribute doit être un entier.',
+    'max' => [
+        'file' => 'Le champ :attribute ne doit pas dépasser :max kilo-octets.',
+        'string' => 'Le champ :attribute ne doit pas dépasser :max caractères.',
+    ],
+    'mimes' => 'Le champ :attribute doit être un fichier de type : :values.',
+    'min' => [
+        'string' => 'Le champ :attribute doit contenir au moins :min caractères.',
+    ],
+    'nullable' => 'Le champ :attribute peut être vide.',
+    'required' => 'Le champ :attribute est obligatoire.',
+    'required_if' => 'Le champ :attribute est obligatoire lorsque :other vaut :value.',
+    'same' => 'Les champs :attribute et :other doivent correspondre.',
+    'string' => 'Le champ :attribute doit être une chaîne de caractères.',
+    'unique' => 'Le champ :attribute est déjà utilisé.',
+
+    'attributes' => [
+        'cours_id' => 'cours',
+        'current_password' => 'mot de passe actuel',
+        'domain' => 'domaine',
+        'domaine' => 'domaine',
+        'email' => 'adresse e-mail',
+        'file' => 'fichier',
+        'filiere' => 'filière',
+        'first_name' => 'prénom',
+        'id_tuteur' => 'tuteur',
+        'last_name' => 'nom',
+        'level' => 'niveau',
+        'nom' => 'titre du cours',
+        'niveau' => 'niveau',
+        'password' => 'mot de passe',
+        'password_confirmation' => 'confirmation du mot de passe',
+        'prenom' => 'prénom',
+        'role' => 'rôle',
+        'thumbnail' => 'image de couverture',
+        'titre' => 'titre de la leçon',
+        'token' => 'jeton de réinitialisation',
+        'track' => 'filière',
+        'type' => 'type de leçon',
+    ],
+
+    'custom' => [
+        'lesson_pdf' => 'Une leçon PDF doit inclure un fichier PDF.',
+        'lesson_video' => 'Une leçon vidéo doit utiliser un fichier MP4, MOV, AVI ou WEBM.',
+    ],
+];
