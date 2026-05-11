@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Admin;
 use App\Models\Utilisateur;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
 {
@@ -16,7 +15,8 @@ class AdminUserSeeder extends Seeder
             [
                 'prenom' => 'Platform',
                 'nom' => 'Admin',
-                'password' => Hash::make(env('ADMIN_PASSWORD', 'password123')),
+                // Utilisateur casts password as "hashed" so we store plaintext here.
+                'password' => env('ADMIN_PASSWORD', 'password123'),
             ],
         );
 

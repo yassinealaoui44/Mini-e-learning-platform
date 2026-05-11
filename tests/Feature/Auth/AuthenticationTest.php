@@ -102,4 +102,33 @@ class AuthenticationTest extends TestCase
             ->get('/dashboard')
             ->assertRedirect(route('admin.dashboard'));
     }
+
+    public function test_seeded_admin_credentials_redirect_to_admin_panel(): void
+    {
+        $email = 'admin@admin.com';
+        $password = 'password123';
+
+        $adminUser = Utilisateur::query()->create([
+            'prenom' => 'Platform',
+            'nom' => 'Admin',
+            'email' => $email,
+            // Utilisateur casts password as "hashed", so store plaintext here.
+            'password' => $password,
+        ]);
+
+        Admin::query()->create([
+            'id_utilisateur' => $adminUser->id_utilisateur,
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => $email,
+            'password' => $password,
+        ]);
+
+        $this->assertAuthenticatedAs($adminUser);
+        $response->assertRedirect(route('dashboard', absolute: false));
+
+        $this->get('/dashboard')
+            ->assertRedirect(route('admin.dashboard'));
+    }
 }
